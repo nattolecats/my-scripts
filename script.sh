@@ -54,8 +54,6 @@ flash() {
 
 upload() {
     export DEVICE=$1
-    export DESTINATION=""
-    export DESTINATION_IMG=""
     
     if [ $1 = "" ]; then export DEVICE=$(echo $TARGET_PRODUCT | sed -E 's/[a-z]+_//'); fi
     
@@ -64,15 +62,18 @@ upload() {
         return
     fi
     
-    # Upload OTA zip
+    export DESTINATION=""
+    export DESTINATION_IMG=""
+    
     if [ $EVO_BUILD_TYPE == "OFFICIAL" ]; then 
         export DESTINATION="evolution-x/${DEVICE}/"
         export DESTINATION="evolution-x/${DEVICE}/vendor_boot/"
     else 
-        export DESTINATION="evolution-x-unofficial-builds/${DEVICE}/builds/"
-        export DESTINATION="evolution-x-unofficial-builds/${DEVICE}/recovery_images/"
+        export DESTINATION_IMG="evolution-x-unofficial-builds/${DEVICE}/builds/"
+        export DESTINATION_IMG="evolution-x-unofficial-builds/${DEVICE}/recovery_images/"
     fi
     
+    # Upload OTA zip
     scp $OUT/$(cd $OUT && ls *.zip | grep $TARGET_PRODUCT | tail -n 1) nattolecats@frs.sourceforge.net:/home/frs/p/$DESTINATION
     
     if [ $(echo $(pwd) | awk -F "/" '{ print $NF }') == "tiramisu-pixel" ]; then
