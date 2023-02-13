@@ -18,13 +18,12 @@ sync() {
 }
 
 build() {
-    unset EVO_BUILD_TYPE
-    if [ $1 = "official" ]; then echo "* Doing official build." ;export EVO_BUILD_TYPE=OFFICIAL; fi
-    
-    if [ $TARGET_PRODUCT = "" ]; then 
-        lunch
-    else
+    if [ ! -z $TARGET_PRODUCT ]; then 
         lunch $TARGET_PRODUCT-userdebug
+    elif [ ! -z $1 ]; then
+        lunch evolution_$1-userdebug
+    else
+        lunch
     fi
     
     export DEVICE=$(echo $TARGET_PRODUCT | sed -E 's/[a-z]+_//')
@@ -33,7 +32,7 @@ build() {
 }
 
 flash() {
-    if [ $OUT = "" ]; then return; fi
+    if [ -z $OUT ]; then return; fi
     
     if [ $(echo $(pwd) | awk -F "/" '{ print $NF }') == "tiramisu-pixel" ]; then
         adb reboot bootloader
@@ -55,9 +54,9 @@ flash() {
 upload() {
     export DEVICE=$1
     
-    if [ $1 = "" ]; then export DEVICE=$(echo $TARGET_PRODUCT | sed -E 's/[a-z]+_//'); fi
+    if [ -z $1 ]; then export DEVICE=$(echo $TARGET_PRODUCT | sed -E 's/[a-z]+_//'); fi
     
-    if [ $DEVICE = "" ]; then 
+    if [ -z $DEVICE ]; then 
         echo "* Device codename is empty."
         return
     fi
