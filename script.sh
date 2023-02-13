@@ -1,12 +1,14 @@
 #!/bin/bash
 
+. build/envsetup.sh
+
 sync() {
     export REPO_BRANCH=$(echo $(pwd) | awk -F "/" '{ print $NF }')
     
     echo "* Initializing '${REPO_BRANCH}'."
     repo init -u https://github.com/Evolution-X/manifest -b $REPO_BRANCH
     
-    if [ $1 == "force" ]; then
+    if [ $1 = "force" ]; then
         echo "* Force syncing."
         repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
     else
@@ -16,9 +18,10 @@ sync() {
 }
 
 build() {
-    . build/envsetup.sh
+    unset EVO_BUILD_TYPE
+    if [ $1 = "official" ]; then echo "* Doing official build." ;export EVO_BUILD_TYPE=OFFICIAL; fi
     
-    if [ $TARGET_PRODUCT == "" ]; then 
+    if [ $TARGET_PRODUCT = "" ]; then 
         lunch
     else
         lunch $TARGET_PRODUCT-userdebug
@@ -26,14 +29,11 @@ build() {
     
     export DEVICE=$(echo $TARGET_PRODUCT | sed -E 's/[a-z]+_//')
     
-    unset EVO_BUILD_TYPE
-    if [ $1 == "official" ]; then export EVO_BUILD_TYPE=OFFICIAL; fi
-    
     m evolution
 }
 
 flash() {
-    if [ $OUT == "" ]; then return
+    if [ $OUT = "" ]; then return; fi
     
     if [ $(echo $(pwd) | awk -F "/" '{ print $NF }') == "tiramisu-pixel" ]; then
         adb reboot bootloader
@@ -57,9 +57,9 @@ upload() {
     export DESTINATION=""
     export DESTINATION_IMG=""
     
-    if [ $1 == "" ]; then export DEVICE=$(echo $TARGET_PRODUCT | sed -E 's/[a-z]+_//'); fi
+    if [ $1 = "" ]; then export DEVICE=$(echo $TARGET_PRODUCT | sed -E 's/[a-z]+_//'); fi
     
-    if [ $DEVICE == "" ]; then 
+    if [ $DEVICE = "" ]; then 
         echo "* Device codename is empty."
         return
     fi
