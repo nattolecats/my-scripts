@@ -18,10 +18,10 @@ sync() {
 }
 
 build() {
-    if [ ! -z $TARGET_PRODUCT ]; then 
-        lunch $TARGET_PRODUCT-userdebug
-    elif [ ! -z $1 ]; then
+    if [ ! -z $1 ]; then
         lunch evolution_$1-userdebug
+    elif [ ! -z $TARGET_PRODUCT ]; then 
+        lunch $TARGET_PRODUCT-userdebug
     else
         lunch
     fi
